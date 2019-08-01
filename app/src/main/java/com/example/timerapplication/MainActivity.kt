@@ -55,10 +55,16 @@ class MainActivity : AppCompatActivity() {
 
         //TODO: Remove background timer, hide notification
     }
-    // lifecycle function which is called right before the activity goes into background 
+    // lifecycle function which is called right before the activity goes into background
     override fun onPause() {
         super.onPause()
-
+        if (timerState == TimerState.Running){
+            timer.cancel()
+            // TODO: Start background timer and show notificiation
+        } else if (timerState == TimerState.Paused){
+            // TODO: Show Notification
+        }
+        // if we save variables to preferences, those variables are not wiped when app restarts - they are persistent and saved to the drive 
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
