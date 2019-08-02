@@ -6,6 +6,7 @@ import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu
 import android.view.MenuItem
+import com.example.timerapplication.util.PrefUtil
 
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -64,7 +65,27 @@ class MainActivity : AppCompatActivity() {
         } else if (timerState == TimerState.Paused){
             // TODO: Show Notification
         }
-        // if we save variables to preferences, those variables are not wiped when app restarts - they are persistent and saved to the drive 
+        // if we save variables to preferences, those variables are not wiped when app restarts - they are persistent and saved to the drive
+        PrefUtil.setPreviousTimerLengthSeconds(timerLengthSeconds, this)
+        PrefUtil.setSecondsRemaining(secondsRemaining, this)
+        PrefUtil.setTimerState(timerState, this)
+    }
+
+    private fun initTimer(){
+        timerState = PrefUtil.getTimerState(this)
+        if (timerState == TimerState.Stopped){
+            setNewTimerLength()
+        } else {
+            setPreviousTimerLength()
+        }
+
+        secondsRemaining = if (timerState == TimerState.Running || timerState == TimerState.Paused){
+            PrefUtil.getSecondsRemaining(this)
+        } else {
+            // set the value to be the full timer length value which is timerlengthseconds
+            timerLengthSeconds
+        }
+        //TODO: change seconds remaining to where the background timer stopped
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
