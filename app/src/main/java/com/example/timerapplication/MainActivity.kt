@@ -12,60 +12,61 @@ import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    
-
     enum class TimerState{
         Stopped, Paused, Running
     }
 
     private lateinit var timer: CountDownTimer
-    private var timerLengthSeconds: Long = 0L
-    private var timerState: TimerState = TimerState.Stopped
+    private var timerLengthSeconds: Long = 0
+    private var timerState = TimerState.Stopped
 
-    private var secondsRemaining: Long = 0L
+    private var secondsRemaining: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         supportActionBar?.setIcon(R.drawable.ic_timer)
-        supportActionBar?.title = "             Timer"
-        fab_start.setOnClickListener{V ->
+        supportActionBar?.title = "      Timer"
+
+        fab_start.setOnClickListener{v ->
             startTimer()
-            timerState = TimerState.Running
+            timerState =  TimerState.Running
             updateButtons()
         }
 
-        fab_pause.setOnClickListener {V ->
+        fab_pause.setOnClickListener { v ->
             timer.cancel()
             timerState = TimerState.Paused
             updateButtons()
         }
 
-        fab_start.setOnClickListener {V ->
+        fab_stop.setOnClickListener { v ->
             timer.cancel()
             onTimerFinished()
         }
     }
 
-    // Overriding lifecycle functions
     override fun onResume() {
         super.onResume()
 
         initTimer()
 
-        //TODO: Remove background timer, hide notification
+        //TODO: remove background timer, hide notification
     }
-    // lifecycle function which is called right before the activity goes into background
+
     override fun onPause() {
         super.onPause()
+
         if (timerState == TimerState.Running){
             timer.cancel()
-            // TODO: Start background timer and show notificiation
-        } else if (timerState == TimerState.Paused){
-            // TODO: Show Notification
+            //TODO: start background timer and show notification
         }
-        // if we save variables to preferences, those variables are not wiped when app restarts - they are persistent and saved to the drive
+        else if (timerState == TimerState.Paused){
+            //TODO: show notification
+        }
+        // if we save variables to perferences, those variables are not wiped when
+        // the app restarts - they are persistent and saved to the drive
         PrefUtil.setPreviousTimerLengthSeconds(timerLengthSeconds, this)
         PrefUtil.setSecondsRemaining(secondsRemaining, this)
         PrefUtil.setTimerState(timerState, this)
@@ -73,31 +74,39 @@ class MainActivity : AppCompatActivity() {
 
     private fun initTimer(){
         timerState = PrefUtil.getTimerState(this)
-        if (timerState == TimerState.Stopped){
+
+        //we don't want to change the length of the timer which is already running
+        //if the length was changed in settings while it was backgrounded
+        if (timerState == TimerState.Stopped)
             setNewTimerLength()
-        } else {
-            setPreviousTimerLength()
-        }
-
-        secondsRemaining = if (timerState == TimerState.Running || timerState == TimerState.Paused){
-            PrefUtil.getSecondsRemaining(this)
-        } else {
+        else
             // set the value to be the full timer length value which is timerlengthseconds
-            timerLengthSeconds
-        }
-        //TODO: change seconds remaining to where the background timer stopped
+            setPreviousTimerLength()
 
-        //resume
-        if (timerState == TimerState.Running){
+        secondsRemaining = if (timerState == TimerState.Running || timerState == TimerState.Paused)
+            PrefUtil.getSecondsRemaining(this)
+        else
+            timerLengthSeconds
+
+        //TODO: change secondsRemaining according to where the background timer stopped
+
+        //resume where we left off
+        if (timerState == TimerState.Running)
             startTimer()
-        }
+
         updateButtons()
         updateCountdownUI()
     }
 
     private fun onTimerFinished(){
         timerState = TimerState.Stopped
+
+        //set the length of the timer to be the one set in SettingsActivity
+        //if the length was changed when the timer was running
+        setNewTimerLength()
+
         progress_countdown.progress = 0
+
         PrefUtil.setSecondsRemaining(timerLengthSeconds, this)
         secondsRemaining = timerLengthSeconds
 
@@ -107,12 +116,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun startTimer(){
         timerState = TimerState.Running
-        // timer inherits from countdowntimer and we pass in the arguments into the constructor
-        timer = object : CountDownTimer(secondsRemaining*1000, 1000){
+
+        timer = object : CountDownTimer(secondsRemaining * 1000, 1000) {
             override fun onFinish() = onTimerFinished()
 
-            override fun onTick(p0: Long) {
-                secondsRemaining = p0 / 1000
+            override fun onTick(millisUntilFinished: Long) {
+                secondsRemaining = millisUntilFinished / 1000
                 updateCountdownUI()
             }
         }.start()
@@ -129,38 +138,34 @@ class MainActivity : AppCompatActivity() {
         progress_countdown.max = timerLengthSeconds.toInt()
     }
 
-    private fun updateCountdownUI() {
-        val minutesUntilFinished = secondsRemaining/60
-        val secondsInMinuteUntilFinished = secondsRemaining - minutesUntilFinished*60
+    private fun updateCountdownUI(){
+        val minutesUntilFinished = secondsRemaining / 60
+        val secondsInMinuteUntilFinished = secondsRemaining - minutesUntilFinished * 60
         val secondsStr = secondsInMinuteUntilFinished.toString()
-        // interpreted string
-        textView_countdown.text = "$minutesUntilFinished:${
-        if (secondsStr.length == 2) secondsStr
-        else "0" + secondsStr
-        }"
-        progress_countdown.progress = (timerLengthSeconds-secondsRemaining).toInt()
+        textView_countdown.text = "$minutesUntilFinished:${if (secondsStr.length == 2) secondsStr else "0" + secondsStr}"
+        progress_countdown.progress = (timerLengthSeconds - secondsRemaining).toInt()
     }
 
     private fun updateButtons(){
-        // similar to the java switch statements
-        when(timerState){
-            TimerState.Running -> {
+        when (timerState) {
+            TimerState.Running ->{
                 fab_start.isEnabled = false
                 fab_pause.isEnabled = true
                 fab_stop.isEnabled = true
             }
             TimerState.Stopped -> {
                 fab_start.isEnabled = true
-                fab_pause.isEnabled = true
-                fab_stop.isEnabled = true
+                fab_pause.isEnabled = false
+                fab_stop.isEnabled = false
             }
-            TimerState.Paused ->{
+            TimerState.Paused -> {
                 fab_start.isEnabled = true
                 fab_pause.isEnabled = false
                 fab_stop.isEnabled = true
             }
         }
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

@@ -8,40 +8,43 @@ import java.util.*
 class PrefUtil {
     // member defined in the companion object are like static objects
     companion object {
+
         fun getTimerLength(context: Context): Int{
-            // placeholder
-            return 1
+            //placeholder
+            return 10
         }
 
-        private const val PREVIOUS_TIMER_LENGTH_ID = "com.example.timerapplication.previous_timer_length"
+        private const val PREVIOUS_TIMER_LENGTH_SECONDS_ID = "com.resocoder.timer.previous_timer_length_seconds"
 
         fun getPreviousTimerLengthSeconds(context: Context): Long{
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            return preferences.getLong(PREVIOUS_TIMER_LENGTH_ID, 0)
+            return preferences.getLong(PREVIOUS_TIMER_LENGTH_SECONDS_ID, 0)
         }
 
         fun setPreviousTimerLengthSeconds(seconds: Long, context: Context){
             val editor = PreferenceManager.getDefaultSharedPreferences(context).edit()
-            editor.putLong(PREVIOUS_TIMER_LENGTH_ID, seconds)
+            editor.putLong(PREVIOUS_TIMER_LENGTH_SECONDS_ID, seconds)
             editor.apply()
         }
 
-        private const val TIMER_STATE_ID = "com.example.timerapplication.timer_state"
 
-        fun getTimerState(context: Context): MainActivity.TimerState {
+        private const val TIMER_STATE_ID = "com.resocoder.timer.timer_state"
+
+        fun getTimerState(context: Context): MainActivity.TimerState{
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val ordinal = preferences.getInt(TIMER_STATE_ID, 0)
             return MainActivity.TimerState.values()[ordinal]
         }
 
-        fun setTimerState(state: MainActivity.TimerState, context:Context){
+        fun setTimerState(state: MainActivity.TimerState, context: Context){
             val editor = PreferenceManager.getDefaultSharedPreferences(context).edit()
             val ordinal = state.ordinal
             editor.putInt(TIMER_STATE_ID, ordinal)
             editor.apply()
         }
 
-        private const val SECONDS_REMAINING_ID = "com.example.timerapplication.seconds_remaining"
+
+        private const val SECONDS_REMAINING_ID = "com.resocoder.timer.seconds_remaining"
 
         fun getSecondsRemaining(context: Context): Long{
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
