@@ -9,6 +9,7 @@ import android.view.MenuItem
 import com.example.timerapplication.util.PrefUtil
 
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -86,6 +87,36 @@ class MainActivity : AppCompatActivity() {
             timerLengthSeconds
         }
         //TODO: change seconds remaining to where the background timer stopped
+
+        //resume
+        if (timerState == TimerState.Running){
+            startTimer()
+        }
+        updateButtons()
+        updateCountdownUI()
+    }
+
+    private fun onTimerFinished(){
+        timerState = TimerState.Stopped
+        progress_countdown.progress = 0
+        PrefUtil.setSecondsRemaining(timerLengthSeconds, this)
+        secondsRemaining = timerLengthSeconds
+
+        updateButtons()
+        updateCountdownUI()
+    }
+
+    private fun startTimer(){
+        timerState = TimerState.Running
+        // timer inherits from countdowntimer and we pass in the arguments into the constructor
+        timer = object : CountDownTimer(secondsRemaining*1000, 1000){
+            override fun onFinish() = onTimerFinished()
+
+            override fun onTick(p0: Long) {
+                secondsRemaining = millisUntilFinished / 1000
+                updateCountdownUI()
+            }
+        }.start()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
