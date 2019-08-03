@@ -2,7 +2,6 @@ package com.example.timerapplication.util
 
 import android.content.Context
 import androidx.preference.PreferenceManager
-import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.example.timerapplication.MainActivity
 import java.util.*
 

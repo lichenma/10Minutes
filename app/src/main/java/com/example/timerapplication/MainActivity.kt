@@ -3,16 +3,16 @@ package com.example.timerapplication
 import android.os.Bundle
 import android.os.CountDownTimer
 import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import com.example.timerapplication.util.PrefUtil
-
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    
 
     enum class TimerState{
         Stopped, Paused, Running
@@ -30,20 +30,19 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setIcon(R.drawable.ic_timer)
         supportActionBar?.title = "             Timer"
-
-        fab_start.setOnClickListener{ v ->
+        fab_start.setOnClickListener{V ->
             startTimer()
             timerState = TimerState.Running
             updateButtons()
         }
 
-        fab_pause.setOnClickListener { v ->
+        fab_pause.setOnClickListener {V ->
             timer.cancel()
             timerState = TimerState.Paused
             updateButtons()
         }
 
-        fab_start.setOnClickListener { v ->
+        fab_start.setOnClickListener {V ->
             timer.cancel()
             onTimerFinished()
         }
@@ -131,11 +130,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateCountdownUI() {
-        val minutesUntilFInished = secondsRemaining/60
-        val secondsInMinuteUntilFinished = secondsRemaining - minutesUntilFInished*60
+        val minutesUntilFinished = secondsRemaining/60
+        val secondsInMinuteUntilFinished = secondsRemaining - minutesUntilFinished*60
         val secondsStr = secondsInMinuteUntilFinished.toString()
         // interpreted string
-        textView_countdown.text = "$minutesUntilFInished.toString():${
+        textView_countdown.text = "$minutesUntilFinished:${
         if (secondsStr.length == 2) secondsStr
         else "0" + secondsStr
         }"
@@ -152,8 +151,8 @@ class MainActivity : AppCompatActivity() {
             }
             TimerState.Stopped -> {
                 fab_start.isEnabled = true
-                fab_pause.isEnabled = false
-                fab_stop.isEnabled = false
+                fab_pause.isEnabled = true
+                fab_stop.isEnabled = true
             }
             TimerState.Paused ->{
                 fab_start.isEnabled = true
