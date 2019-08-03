@@ -113,10 +113,54 @@ class MainActivity : AppCompatActivity() {
             override fun onFinish() = onTimerFinished()
 
             override fun onTick(p0: Long) {
-                secondsRemaining = millisUntilFinished / 1000
+                secondsRemaining = p0 / 1000
                 updateCountdownUI()
             }
         }.start()
+    }
+
+    private fun setNewTimerLength(){
+        val lengthInMinutes = PrefUtil.getTimerLength(this)
+        timerLengthSeconds = (lengthInMinutes * 60L)
+        progress_countdown.max = timerLengthSeconds.toInt()
+    }
+
+    private fun setPreviousTimerLength(){
+        timerLengthSeconds = PrefUtil.getPreviousTimerLengthSeconds(this)
+        progress_countdown.max = timerLengthSeconds.toInt()
+    }
+
+    private fun updateCountdownUI() {
+        val minutesUntilFInished = secondsRemaining/60
+        val secondsInMinuteUntilFinished = secondsRemaining - minutesUntilFInished*60
+        val secondsStr = secondsInMinuteUntilFinished.toString()
+        // interpreted string
+        textView_countdown.text = "$minutesUntilFInished.toString():${
+        if (secondsStr.length == 2) secondsStr
+        else "0" + secondsStr
+        }"
+        progress_countdown.progress = (timerLengthSeconds-secondsRemaining).toInt()
+    }
+
+    private fun updateButtons(){
+        // similar to the java switch statements
+        when(timerState){
+            TimerState.Running -> {
+                fab_start.isEnabled = false
+                fab_pause.isEnabled = true
+                fab_stop.isEnabled = true
+            }
+            TimerState.Stopped -> {
+                fab_start.isEnabled = true
+                fab_pause.isEnabled = false
+                fab_stop.isEnabled = false
+            }
+            TimerState.Paused ->{
+                fab_start.isEnabled = true
+                fab_pause.isEnabled = false
+                fab_stop.isEnabled = true
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
