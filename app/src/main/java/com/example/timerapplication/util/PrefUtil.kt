@@ -14,7 +14,7 @@ class PrefUtil {
             return 10
         }
 
-        private const val PREVIOUS_TIMER_LENGTH_SECONDS_ID = "com.resocoder.timer.previous_timer_length_seconds"
+        private const val PREVIOUS_TIMER_LENGTH_SECONDS_ID = "com.example.timerapplication.timer.previous_timer_length_seconds"
 
         fun getPreviousTimerLengthSeconds(context: Context): Long{
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -28,7 +28,7 @@ class PrefUtil {
         }
 
 
-        private const val TIMER_STATE_ID = "com.resocoder.timer.timer_state"
+        private const val TIMER_STATE_ID = "com.example.timerapplication.timer.timer_state"
 
         fun getTimerState(context: Context): MainActivity.TimerState{
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -44,7 +44,7 @@ class PrefUtil {
         }
 
 
-        private const val SECONDS_REMAINING_ID = "com.resocoder.timer.seconds_remaining"
+        private const val SECONDS_REMAINING_ID = "com.example.timerapplication.timer.seconds_remaining"
 
         fun getSecondsRemaining(context: Context): Long{
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -54,6 +54,20 @@ class PrefUtil {
         fun setSecondsRemaining(seconds: Long, context: Context){
             val editor = PreferenceManager.getDefaultSharedPreferences(context).edit()
             editor.putLong(SECONDS_REMAINING_ID, seconds)
+            editor.apply()
+        }
+
+        private const val ALARM_SET_TIME_ID = "com.example.timerapplication.backgrounded_time"
+
+        fun getAlarmSetTime(context: Context): Long{
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            // return value with key ALARM_SET_TIME_ID otherwise return 0
+            return preferences.getLong(ALARM_SET_TIME_ID, 0)
+        }
+
+        fun setAlarmSetTime(time: Long, context: Context){
+            val editor = PreferenceManager.getDefaultSharedPreferences(context).edit()
+            editor.putLong(ALARM_SET_TIME_ID, time)
             editor.apply()
         }
     }
