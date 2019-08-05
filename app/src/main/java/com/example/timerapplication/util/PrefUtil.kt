@@ -11,7 +11,20 @@ class PrefUtil {
 
         fun getTimerLength(context: Context): Int{
             //placeholder
-            return 10
+            return 1
+        }
+
+        private const val STREAK_COUNTER = "com.example.timerapplication.streak_counter"
+
+        fun getStreak(context: Context): Long{
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            return preferences.getLong(STREAK_COUNTER, 0)
+        }
+
+        fun setStreak(num: Long, context: Context){
+            val editor = PreferenceManager.getDefaultSharedPreferences(context).edit()
+            editor.putLong(STREAK_COUNTER, num)
+            editor.apply()
         }
 
         private const val PREVIOUS_TIMER_LENGTH_SECONDS_ID = "com.example.timerapplication.timer.previous_timer_length_seconds"

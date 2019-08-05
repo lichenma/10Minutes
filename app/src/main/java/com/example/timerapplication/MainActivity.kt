@@ -1,11 +1,13 @@
 package com.example.timerapplication
 
+import android.annotation.TargetApi
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.PowerManager
 import com.google.android.material.snackbar.Snackbar
 import android.view.Menu
 import android.view.MenuItem
@@ -17,6 +19,7 @@ import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
+
     companion object {
         fun setAlarm(context: Context, nowSeconds: Long, secondsRemaining: Long): Long{
             val wakeUpTime = (nowSeconds + secondsRemaining)*1000
@@ -47,7 +50,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var timer: CountDownTimer
     private var timerLengthSeconds: Long = 0
     private var timerState = TimerState.Stopped
-
     private var secondsRemaining: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setIcon(R.drawable.ic_timer)
         supportActionBar?.title = "      Timer"
-
+        /*
         fab_start.setOnClickListener{v ->
             startTimer()
             timerState =  TimerState.Running
@@ -72,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         fab_stop.setOnClickListener { v ->
             timer.cancel()
             onTimerFinished()
-        }
+        } */
 
     }
 
@@ -85,10 +87,10 @@ class MainActivity : AppCompatActivity() {
         NotificationUtil.hideTimerNotification(this)
 
         // TODO: Implementation for auto-countdown
-        //startTimer()
-        //timerState = TimerState.Running
+        startTimer()
+        timerState = TimerState.Running
     }
-
+    @TargetApi(20)
     override fun onPause() {
         super.onPause()
 
@@ -96,9 +98,20 @@ class MainActivity : AppCompatActivity() {
             timer.cancel()
             val wakeUpTime = setAlarm(this, nowSeconds, secondsRemaining)
             NotificationUtil.showTimerRunning(this, wakeUpTime)
-        }
-        else if (timerState == TimerState.Paused){
+
+            // This means we left the app with time to spare - we want to remove the streak
+            var pm = this.applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+            if (pm.isInteractive){
+                PrefUtil.setStreak(0, this)
+            }
+
+        } else if (timerState == TimerState.Paused){
             NotificationUtil.showTimerPaused(this)
+        } else if (timerState == TimerState.Stopped){
+            // means user has stayed for 10 mins and we can increment the counter
+            var streak = PrefUtil.getStreak(this)
+            streak += 1
+            PrefUtil.setStreak(streak, this)
         }
         // if we save variables to perferences, those variables are not wiped when
         // the app restarts - they are persistent and saved to the drive
@@ -153,6 +166,7 @@ class MainActivity : AppCompatActivity() {
 
         updateButtons()
         updateCountdownUI()
+
     }
 
     private fun startTimer(){
@@ -185,6 +199,9 @@ class MainActivity : AppCompatActivity() {
         val secondsStr = secondsInMinuteUntilFinished.toString()
         textView_countdown.text = "$minutesUntilFinished:${if (secondsStr.length == 2) secondsStr else "0" + secondsStr}"
         progress_countdown.progress = (timerLengthSeconds - secondsRemaining).toInt()
+        var streak = PrefUtil.getStreak(this)
+        streak_count.text = "Current Streak is: ${streak}"
+
     }
 
     private fun updateButtons(){
