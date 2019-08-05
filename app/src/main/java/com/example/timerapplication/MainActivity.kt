@@ -105,20 +105,15 @@ class MainActivity : AppCompatActivity() {
             var pm = this.applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
             if (pm.isInteractive){
                 PrefUtil.setStreak(0, this)
-                timerLengthSeconds = 0
-                progress_countdown.progress = 0
-
-                PrefUtil.setSecondsRemaining(timerLengthSeconds, this)
-                secondsRemaining = timerLengthSeconds
+                onTimerFinished()
+                secondsRemaining = 0
+                timerState = TimerState.Stopped
             }
 
         } else if (timerState == TimerState.Paused){
             //NotificationUtil.showTimerPaused(this)
         } else if (timerState == TimerState.Stopped){
-            // means user has stayed for 10 mins and we can increment the counter
-            var streak = PrefUtil.getStreak(this)
-            streak += 1
-            PrefUtil.setStreak(streak, this)
+
         } else {
             timerState = TimerState.Stopped
         }
@@ -168,6 +163,10 @@ class MainActivity : AppCompatActivity() {
         } else {
             timerState = TimerState.Stopped
         }
+        // means user has stayed for 10 mins and we can increment the counter
+        var streak = PrefUtil.getStreak(this)
+        streak += 1
+        PrefUtil.setStreak(streak, this)
 
         //set the length of the timer to be the one set in SettingsActivity
         //if the length was changed when the timer was running
