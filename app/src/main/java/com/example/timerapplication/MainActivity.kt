@@ -10,6 +10,7 @@ import com.google.android.material.snackbar.Snackbar
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import com.example.timerapplication.util.NotificationUtil
 import com.example.timerapplication.util.PrefUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -80,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         initTimer()
 
         removeAlarm(this)
-        //TODO: hide notification
+        NotificationUtil.hideTimerNotification(this)
     }
 
     override fun onPause() {
@@ -89,10 +90,10 @@ class MainActivity : AppCompatActivity() {
         if (timerState == TimerState.Running){
             timer.cancel()
             val wakeUpTime = setAlarm(this, nowSeconds, secondsRemaining)
-            //TODO: show notification
+            NotificationUtil.showTimerRunning(this, wakeUpTime)
         }
         else if (timerState == TimerState.Paused){
-            //TODO: show notification
+            NotificationUtil.showTimerPaused(this)
         }
         // if we save variables to perferences, those variables are not wiped when
         // the app restarts - they are persistent and saved to the drive
