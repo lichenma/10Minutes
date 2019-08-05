@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
             get() = Calendar.getInstance().timeInMillis / 1000
     }
     enum class TimerState{
-        Stopped, Paused, Running
+        Stopped, Paused, Running, Done
     }
 
     private lateinit var timer: CountDownTimer
@@ -87,8 +87,10 @@ class MainActivity : AppCompatActivity() {
         NotificationUtil.hideTimerNotification(this)
 
         // TODO: Implementation for auto-countdown
-        startTimer()
-        timerState = TimerState.Running
+        if (timerState != TimerState.Done){
+            startTimer()
+            timerState = TimerState.Running
+        }
     }
     @TargetApi(20)
     override fun onPause() {
@@ -97,21 +99,28 @@ class MainActivity : AppCompatActivity() {
         if (timerState == TimerState.Running){
             timer.cancel()
             val wakeUpTime = setAlarm(this, nowSeconds, secondsRemaining)
-            NotificationUtil.showTimerRunning(this, wakeUpTime)
+            //NotificationUtil.showTimerRunning(this, wakeUpTime)
 
             // This means we left the app with time to spare - we want to remove the streak
             var pm = this.applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
             if (pm.isInteractive){
                 PrefUtil.setStreak(0, this)
+                timerLengthSeconds = 0
+                progress_countdown.progress = 0
+
+                PrefUtil.setSecondsRemaining(timerLengthSeconds, this)
+                secondsRemaining = timerLengthSeconds
             }
 
         } else if (timerState == TimerState.Paused){
-            NotificationUtil.showTimerPaused(this)
+            //NotificationUtil.showTimerPaused(this)
         } else if (timerState == TimerState.Stopped){
             // means user has stayed for 10 mins and we can increment the counter
             var streak = PrefUtil.getStreak(this)
             streak += 1
             PrefUtil.setStreak(streak, this)
+        } else {
+            timerState = TimerState.Stopped
         }
         // if we save variables to perferences, those variables are not wiped when
         // the app restarts - they are persistent and saved to the drive
@@ -151,9 +160,14 @@ class MainActivity : AppCompatActivity() {
         updateButtons()
         updateCountdownUI()
     }
-
+    @TargetApi(20)
     private fun onTimerFinished(){
-        timerState = TimerState.Stopped
+        var pm = this.applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+        if (!pm.isInteractive){
+            timerState = TimerState.Done
+        } else {
+            timerState = TimerState.Stopped
+        }
 
         //set the length of the timer to be the one set in SettingsActivity
         //if the length was changed when the timer was running
