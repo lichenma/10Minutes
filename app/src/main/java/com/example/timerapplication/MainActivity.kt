@@ -73,6 +73,7 @@ class MainActivity : AppCompatActivity() {
             timer.cancel()
             onTimerFinished()
         }
+
     }
 
     override fun onResume() {
@@ -82,6 +83,10 @@ class MainActivity : AppCompatActivity() {
 
         removeAlarm(this)
         NotificationUtil.hideTimerNotification(this)
+
+        // TODO: Implementation for auto-countdown
+        //startTimer()
+        //timerState = TimerState.Running
     }
 
     override fun onPause() {
