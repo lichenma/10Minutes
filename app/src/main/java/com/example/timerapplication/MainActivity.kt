@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity() {
     }
     @TargetApi(20)
     private fun onTimerFinished(){
-
+        timerState = TimerState.Done
         // means user has stayed for 10 mins and we can increment the counter
         var streak = PrefUtil.getStreak(this)
         streak += 1

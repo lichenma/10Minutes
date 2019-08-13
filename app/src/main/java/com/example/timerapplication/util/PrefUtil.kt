@@ -11,7 +11,7 @@ class PrefUtil {
 
         fun getTimerLength(context: Context): Int{
             //placeholder
-            return 1
+            return 10
         }
 
         private const val STREAK_COUNTER = "com.example.timerapplication.streak_counter"
