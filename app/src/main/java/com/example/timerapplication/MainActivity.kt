@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var timer: CountDownTimer
     private var timerLengthSeconds: Long = 0
-    private var timerState = TimerState.Stopped
+    private var timerState = TimerState.Running
     private var secondsRemaining: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,14 +100,17 @@ class MainActivity : AppCompatActivity() {
             timer.cancel()
             val wakeUpTime = setAlarm(this, nowSeconds, secondsRemaining)
             //NotificationUtil.showTimerRunning(this, wakeUpTime)
-
-            // This means we left the app with time to spare - we want to remove the streak
             var pm = this.applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
             if (pm.isInteractive){
+                // This means we left the app with time to spare - we want to remove the streak
                 PrefUtil.setStreak(0, this)
-                onTimerFinished()
-                secondsRemaining = 0
-                timerState = TimerState.Stopped
+                PrefUtil.setTimerState(TimerState.Done, this)
+                PrefUtil.setAlarmSetTime(0, this)
+            } else{
+                // This means the user probably put the app to sleep we want to allow this action
+                PrefUtil.setPreviousTimerLengthSeconds(timerLengthSeconds, this)
+                PrefUtil.setSecondsRemaining(secondsRemaining, this)
+                PrefUtil.setTimerState(timerState, this)
             }
 
         } else if (timerState == TimerState.Paused){
@@ -119,9 +122,6 @@ class MainActivity : AppCompatActivity() {
         }
         // if we save variables to perferences, those variables are not wiped when
         // the app restarts - they are persistent and saved to the drive
-        PrefUtil.setPreviousTimerLengthSeconds(timerLengthSeconds, this)
-        PrefUtil.setSecondsRemaining(secondsRemaining, this)
-        PrefUtil.setTimerState(timerState, this)
     }
 
     private fun initTimer(){
