@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
             timer.cancel()
             onTimerFinished()
         } */
-
+        initTimer()
     }
 
     override fun onResume() {
@@ -83,8 +83,8 @@ class MainActivity : AppCompatActivity() {
 
         initTimer()
 
-        removeAlarm(this)
-        NotificationUtil.hideTimerNotification(this)
+        //removeAlarm(this)
+        //NotificationUtil.hideTimerNotification(this)
 
         // TODO: Implementation for auto-countdown
         if (timerState != TimerState.Done){
@@ -95,17 +95,15 @@ class MainActivity : AppCompatActivity() {
     @TargetApi(20)
     override fun onPause() {
         super.onPause()
-
+        timer.cancel()
         if (timerState == TimerState.Running){
-            timer.cancel()
             val wakeUpTime = setAlarm(this, nowSeconds, secondsRemaining)
             //NotificationUtil.showTimerRunning(this, wakeUpTime)
             var pm = this.applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
             if (pm.isInteractive){
                 // This means we left the app with time to spare - we want to remove the streak
                 PrefUtil.setStreak(0, this)
-                PrefUtil.setTimerState(TimerState.Done, this)
-                PrefUtil.setAlarmSetTime(0, this)
+                PrefUtil.setTimerState(TimerState.Stopped, this)
             } else{
                 // This means the user probably put the app to sleep we want to allow this action
                 PrefUtil.setPreviousTimerLengthSeconds(timerLengthSeconds, this)
@@ -116,8 +114,10 @@ class MainActivity : AppCompatActivity() {
         } else if (timerState == TimerState.Paused){
             //NotificationUtil.showTimerPaused(this)
         } else if (timerState == TimerState.Stopped){
-
-        } else {
+            //PrefUtil.setPreviousTimerLengthSeconds(timerLengthSeconds, this)
+            //PrefUtil.setSecondsRemaining(secondsRemaining, this)
+            //PrefUtil.setTimerState(timerState, this)
+        } else if (timerState == TimerState.Done) {
             timerState = TimerState.Stopped
         }
         // if we save variables to perferences, those variables are not wiped when
@@ -129,7 +129,7 @@ class MainActivity : AppCompatActivity() {
 
         //we don't want to change the length of the timer which is already running
         //if the length was changed in settings while it was backgrounded
-        if (timerState == TimerState.Stopped)
+        if (timerState == TimerState.Stopped || timerState == TimerState.Done)
             setNewTimerLength()
         else
             // set the value to be the full timer length value which is timerlengthseconds
@@ -149,10 +149,10 @@ class MainActivity : AppCompatActivity() {
         if (secondsRemaining <= 0) {
             // finished in the background
             onTimerFinished()
-        } else if (timerState == TimerState.Running)
-            startTimer()
+        } else if (timerState == TimerState.Done)
+            timerState = TimerState.Stopped
 
-        updateButtons()
+        //updateButtons()
         updateCountdownUI()
     }
     @TargetApi(20)
