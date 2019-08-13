@@ -10,7 +10,6 @@ class TimerExpiredReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         NotificationUtil.showTimerExpired(context)
-
         PrefUtil.setTimerState(MainActivity.TimerState.Done, context)
         PrefUtil.setAlarmSetTime(0, context)
         var streak = PrefUtil.getStreak(context)

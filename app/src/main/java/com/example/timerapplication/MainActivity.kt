@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity() {
             timer.cancel()
             onTimerFinished()
         } */
+        PrefUtil.setTimerState(TimerState.Running, this)
         initTimer()
     }
 
@@ -83,7 +84,7 @@ class MainActivity : AppCompatActivity() {
 
         initTimer()
 
-        //removeAlarm(this)
+        removeAlarm(this)
         //NotificationUtil.hideTimerNotification(this)
 
         // TODO: Implementation for auto-countdown
@@ -119,6 +120,7 @@ class MainActivity : AppCompatActivity() {
             //PrefUtil.setTimerState(timerState, this)
         } else if (timerState == TimerState.Done) {
             timerState = TimerState.Stopped
+            PrefUtil.setTimerState(timerState, this)
         }
         // if we save variables to perferences, those variables are not wiped when
         // the app restarts - they are persistent and saved to the drive
@@ -146,23 +148,18 @@ class MainActivity : AppCompatActivity() {
             // gives us the amount of time the app was running in the background
             secondsRemaining -= nowSeconds - alarmSetTime
 
-        if (secondsRemaining <= 0) {
+        if (secondsRemaining <= 0 || timerState == TimerState.Done) {
             // finished in the background
             onTimerFinished()
-        } else if (timerState == TimerState.Done)
-            timerState = TimerState.Stopped
+        } else if (timerState == TimerState.Running)
+            //startTimer()
 
         //updateButtons()
         updateCountdownUI()
     }
     @TargetApi(20)
     private fun onTimerFinished(){
-        var pm = this.applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
-        if (!pm.isInteractive){
-            timerState = TimerState.Done
-        } else {
-            timerState = TimerState.Stopped
-        }
+
         // means user has stayed for 10 mins and we can increment the counter
         var streak = PrefUtil.getStreak(this)
         streak += 1
@@ -177,7 +174,7 @@ class MainActivity : AppCompatActivity() {
         PrefUtil.setSecondsRemaining(timerLengthSeconds, this)
         secondsRemaining = timerLengthSeconds
 
-        updateButtons()
+        //updateButtons()
         updateCountdownUI()
 
     }
